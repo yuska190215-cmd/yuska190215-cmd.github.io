@@ -374,16 +374,15 @@ footer{border-top:1px solid var(--line); padding:44px 0;}
 
 <script>
 /* =====================================================
-   CONFIGURATION — замените на свои данные Supabase
+   CONFIGURATION
    ===================================================== */
 const SUPABASE_URL = 'https://plhuigyozjgmhcuzkosw.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsaHVpZ3lvempnbWhjdXprb3N3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3NTU0MTAsImV4cCI6MjEwMTMzMTQxMH0.qojhqwH0zCCR5ff6sA9ybaYyMMxb1lpPvedxdq9ZK_Y';
 
-// Используем другое имя переменной, чтобы избежать конфликта с глобальной
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /* =====================================================
-   DEFAULTS — если в базе нет данных
+   DEFAULTS
    ===================================================== */
 const DEFAULTS = {
   hero: {
@@ -434,40 +433,43 @@ const DEFAULTS = {
 };
 
 /* =====================================================
-   DATA LOADER — загружает все данные из Supabase
+   DATA — хранилище загруженных данных
+   ===================================================== */
+let APP_DATA = {};
+
+/* =====================================================
+   DATA LOADER
    ===================================================== */
 async function loadAllData() {
   try {
     // Загружаем hero
-    const { data: heroData } = await supabaseClient.from('site_hero').select('*').maybeSingle();
-    window.DATA = window.DATA || {};
-    window.DATA.hero = heroData || DEFAULTS.hero;
+    const { data: heroData } = await supabase.from('site_hero').select('*').maybeSingle();
+    APP_DATA.hero = heroData || DEFAULTS.hero;
 
     // Загружаем about
-    const { data: aboutData } = await supabaseClient.from('site_about').select('*').maybeSingle();
-    window.DATA.about = aboutData || DEFAULTS.about;
+    const { data: aboutData } = await supabase.from('site_about').select('*').maybeSingle();
+    APP_DATA.about = aboutData || DEFAULTS.about;
 
     // Загружаем skills
-    const { data: skillsData } = await supabaseClient.from('site_skills').select('*');
-    window.DATA.skills = skillsData?.length ? skillsData : DEFAULTS.skills;
+    const { data: skillsData } = await supabase.from('site_skills').select('*');
+    APP_DATA.skills = skillsData?.length ? skillsData : DEFAULTS.skills;
 
     // Загружаем services
-    const { data: servicesData } = await supabaseClient.from('site_services').select('*');
-    window.DATA.services = servicesData?.length ? servicesData : DEFAULTS.services;
+    const { data: servicesData } = await supabase.from('site_services').select('*');
+    APP_DATA.services = servicesData?.length ? servicesData : DEFAULTS.services;
 
     // Загружаем contacts
-    const { data: contactsData } = await supabaseClient.from('site_contacts').select('*').maybeSingle();
-    window.DATA.contacts = contactsData || DEFAULTS.contacts;
+    const { data: contactsData } = await supabase.from('site_contacts').select('*').maybeSingle();
+    APP_DATA.contacts = contactsData || DEFAULTS.contacts;
 
     // Загружаем projects
-    const { data: projectsData } = await supabaseClient.from('site_projects').select('*').order('created_at', { ascending: false });
-    window.DATA.projects = projectsData?.length ? projectsData : DEFAULTS.projects;
+    const { data: projectsData } = await supabase.from('site_projects').select('*').order('date', { ascending: false });
+    APP_DATA.projects = projectsData?.length ? projectsData : DEFAULTS.projects;
 
     renderSite();
   } catch (error) {
     console.error('Error loading data:', error);
-    // Если ошибка, используем дефолтные данные
-    window.DATA = DEFAULTS;
+    APP_DATA = DEFAULTS;
     renderSite();
   }
 }
@@ -476,12 +478,15 @@ async function loadAllData() {
    RENDER SITE
    ===================================================== */
 function renderSite(){
-  const D = window.DATA;
+  const D = APP_DATA;
   if (!D) return;
 
   // Hero
   document.getElementById('hero-status').textContent = D.hero.status || 'Свободен для новых проектов';
-  document.getElementById('hero-name').innerHTML = D.hero.name ? D.hero.name.replace(/\s+(\S+)$/, ' <em>$1</em>') : 'Имя <em>Фамилия</em>';
+  const nameParts = (D.hero.name || 'Имя Фамилия').split(' ');
+  const firstName = nameParts.slice(0, -1).join(' ');
+  const lastName = nameParts.slice(-1).join(' ');
+  document.getElementById('hero-name').innerHTML = `${firstName} <em>${lastName}</em>`;
   document.getElementById('hero-role-tag').textContent = D.hero.role || 'AI Image Designer';
   document.getElementById('hero-photo').src = D.hero.photo || '';
   document.getElementById('hero-desc').textContent = D.hero.desc || '';
@@ -491,48 +496,51 @@ function renderSite(){
   document.getElementById('about-bio').textContent = D.about.bio || '';
   document.getElementById('stat-years').textContent = D.about.years || '5+';
   document.getElementById('stat-projects').textContent = D.about.projects || '120+';
-  document.getElementById('companies-row').innerHTML = (D.about.companies || '').split(',').map(c=>`<span class="chip">${c.trim()}</span>`).join('');
-  document.getElementById('achv-list').innerHTML = (D.about.achv || '').split('\n').filter(Boolean).map(a=>`<li>${a}</li>`).join('');
+  document.getElementById('companies-row').innerHTML = (D.about.companies || '').split(',').filter(Boolean).map(c => `<span class="chip">${c.trim()}</span>`).join('');
+  document.getElementById('achv-list').innerHTML = (D.about.achv || '').split('\n').filter(Boolean).map(a => `<li>${a}</li>`).join('');
 
   // Skills
-  document.getElementById('skills-grid').innerHTML = (D.skills || []).map(s=>`
+  document.getElementById('skills-grid').innerHTML = (D.skills || []).map(s => `
     <div class="skill-card reveal">
       <div class="skill-top"><span class="skill-name">${s.name}</span><span class="skill-pct mono">${s.pct}%</span></div>
       <div class="bar-track"><div class="bar-fill" data-pct="${s.pct}"></div></div>
-    </div>`).join('');
+    </div>
+  `).join('');
 
   // Projects
-  document.getElementById('folio-grid').innerHTML = (D.projects || []).map(p=>`
+  document.getElementById('folio-grid').innerHTML = (D.projects || []).map(p => `
     <div class="folio-card reveal" data-id="${p.id}">
       <div class="folio-img"><img src="${p.image}" alt="${p.title}"></div>
       <div class="folio-body">
         <div class="folio-cat mono">${p.category}</div>
         <div class="folio-title">${p.title}</div>
-        <div class="folio-meta"><span>${p.client||'Личный проект'}</span><span>${p.date}</span></div>
+        <div class="folio-meta"><span>${p.client || 'Личный проект'}</span><span>${p.date}</span></div>
       </div>
-    </div>`).join('');
+    </div>
+  `).join('');
 
   // Services
-  document.getElementById('services-grid').innerHTML = (D.services || []).map(s=>`
+  document.getElementById('services-grid').innerHTML = (D.services || []).map(s => `
     <div class="service-card reveal">
       <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 2 L14.5 8.5 L21 9.3 L16.2 13.9 L17.6 20.5 L12 17.1 L6.4 20.5 L7.8 13.9 L3 9.3 L9.5 8.5 Z"/></svg>
       <div class="service-title">${s.title}</div>
       <div class="service-desc">${s.desc}</div>
-    </div>`).join('');
+    </div>
+  `).join('');
 
   // Contacts
   const c = D.contacts || {};
   document.getElementById('contact-links').innerHTML = `
-    <a class="contact-link reveal" href="mailto:${c.email||''}"><span class="k mono">EMAIL</span><span class="v">${c.email||''}</span></a>
-    <a class="contact-link reveal" href="https://t.me/${(c.telegram||'').replace('@','')}" target="_blank"><span class="k mono">TELEGRAM</span><span class="v">${c.telegram||''}</span></a>
-    <a class="contact-link reveal" href="https://instagram.com/${(c.instagram||'').replace('@','')}" target="_blank"><span class="k mono">INSTAGRAM</span><span class="v">${c.instagram||''}</span></a>
-    <a class="contact-link reveal" href="https://${(c.linkedin||'').replace(/^https?:\/\//,'')}" target="_blank"><span class="k mono">LINKEDIN</span><span class="v">${c.linkedin||''}</span></a>
-    <a class="contact-link reveal" href="https://${(c.behance||'').replace(/^https?:\/\//,'')}" target="_blank"><span class="k mono">BEHANCE</span><span class="v">${c.behance||''}</span></a>
+    <a class="contact-link reveal" href="mailto:${c.email || ''}"><span class="k mono">EMAIL</span><span class="v">${c.email || ''}</span></a>
+    <a class="contact-link reveal" href="https://t.me/${(c.telegram || '').replace('@', '')}" target="_blank"><span class="k mono">TELEGRAM</span><span class="v">${c.telegram || ''}</span></a>
+    <a class="contact-link reveal" href="https://instagram.com/${(c.instagram || '').replace('@', '')}" target="_blank"><span class="k mono">INSTAGRAM</span><span class="v">${c.instagram || ''}</span></a>
+    <a class="contact-link reveal" href="https://${(c.linkedin || '').replace(/^https?:\/\//, '')}" target="_blank"><span class="k mono">LINKEDIN</span><span class="v">${c.linkedin || ''}</span></a>
+    <a class="contact-link reveal" href="https://${(c.behance || '').replace(/^https?:\/\//, '')}" target="_blank"><span class="k mono">BEHANCE</span><span class="v">${c.behance || ''}</span></a>
   `;
   document.getElementById('footer-social').innerHTML = `
-    <a href="https://t.me/${(c.telegram||'').replace('@','')}" target="_blank">Telegram</a>
-    <a href="https://instagram.com/${(c.instagram||'').replace('@','')}" target="_blank">Instagram</a>
-    <a href="https://${(c.behance||'').replace(/^https?:\/\//,'')}" target="_blank">Behance</a>
+    <a href="https://t.me/${(c.telegram || '').replace('@', '')}" target="_blank">Telegram</a>
+    <a href="https://instagram.com/${(c.instagram || '').replace('@', '')}" target="_blank">Instagram</a>
+    <a href="https://${(c.behance || '').replace(/^https?:\/\//, '')}" target="_blank">Behance</a>
   `;
 
   attachRevealObserver();
@@ -541,48 +549,49 @@ function renderSite(){
 }
 
 function animateBars(){
-  document.querySelectorAll('.bar-fill').forEach(el=>{
-    requestAnimationFrame(()=>{ el.style.width = el.dataset.pct+'%'; });
+  document.querySelectorAll('.bar-fill').forEach(el => {
+    setTimeout(() => { el.style.width = el.dataset.pct + '%'; }, 300);
   });
 }
 
 function attachFolioClicks(){
-  document.querySelectorAll('.folio-card').forEach(card=>{
-    card.addEventListener('click', ()=>openModal(card.dataset.id));
+  document.querySelectorAll('.folio-card').forEach(card => {
+    card.addEventListener('click', () => openModal(card.dataset.id));
   });
 }
 
 function openModal(id){
-  const p = (window.DATA.projects || []).find(x=>x.id===id);
+  const p = (APP_DATA.projects || []).find(x => x.id === id);
   if(!p) return;
   document.getElementById('modal-img').src = p.image;
   document.getElementById('modal-title').textContent = p.title;
-  document.getElementById('modal-cat').textContent = '--category="'+p.category+'"';
+  document.getElementById('modal-cat').textContent = '--category="' + p.category + '"';
   document.getElementById('modal-client').textContent = p.client || '—';
   document.getElementById('modal-date').textContent = p.date;
   document.getElementById('modal-goal').textContent = p.goal || '—';
   document.getElementById('modal-subject').textContent = p.subject || '—';
   document.getElementById('modal-desc').textContent = p.desc;
-  document.getElementById('modal-tools').innerHTML = (p.tools||[]).map(t=>`<span class="chip mono">${t}</span>`).join('');
-  document.getElementById('modal-gallery').innerHTML = (p.gallery||[]).map(g=>`<img src="${g}">`).join('');
+  document.getElementById('modal-tools').innerHTML = (p.tools || []).map(t => `<span class="chip mono">${t}</span>`).join('');
+  document.getElementById('modal-gallery').innerHTML = (p.gallery || []).map(g => `<img src="${g}">`).join('');
   document.getElementById('modal-overlay').classList.add('open');
 }
-document.getElementById('modal-close').addEventListener('click', ()=>document.getElementById('modal-overlay').classList.remove('open'));
-document.getElementById('modal-overlay').addEventListener('click', e=>{ if(e.target.id==='modal-overlay') e.currentTarget.classList.remove('open'); });
+document.getElementById('modal-close').addEventListener('click', () => document.getElementById('modal-overlay').classList.remove('open'));
+document.getElementById('modal-overlay').addEventListener('click', e => { if(e.target.id === 'modal-overlay') e.currentTarget.classList.remove('open'); });
 
 function attachRevealObserver(){
   const els = document.querySelectorAll('.reveal:not(.in)');
-  const io = new IntersectionObserver((entries)=>{
-    entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
-  }, {threshold:.15});
-  els.forEach(el=>io.observe(el));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(en => { if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+  }, { threshold: .15 });
+  els.forEach(el => io.observe(el));
 }
 
 let lastY = window.scrollY;
-window.addEventListener('scroll', ()=>{
+window.addEventListener('scroll', () => {
   const nav = document.getElementById('nav');
   const y = window.scrollY;
-  if(y > lastY && y > 140) nav.classList.add('hide'); else nav.classList.remove('hide');
+  if(y > lastY && y > 140) nav.classList.add('hide'); 
+  else nav.classList.remove('hide');
   lastY = y;
 });
 
@@ -592,28 +601,28 @@ function typePrompt(){
   let i = 0;
   el.innerHTML = '&gt; <span id="typed"></span><span class="cursor"></span>';
   const typed = document.getElementById('typed');
-  const iv = setInterval(()=>{
-    typed.textContent = line.slice(0,i);
+  const iv = setInterval(() => {
+    typed.textContent = line.slice(0, i);
     i++;
     if(i > line.length) clearInterval(iv);
   }, 35);
 }
 
 /* Contact form */
-document.getElementById('contact-form').addEventListener('submit', async (e)=>{
+document.getElementById('contact-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const name = document.getElementById('form-name').value;
   const email = document.getElementById('form-email').value;
   const message = document.getElementById('form-message').value;
   
-  const { error } = await supabaseClient
+  const { error } = await supabase
     .from('site_messages')
     .insert({ name, email, message });
 
   if (!error) {
     document.getElementById('form-sent').style.display = 'block';
     e.target.reset();
-    setTimeout(()=>{ document.getElementById('form-sent').style.display='none'; }, 4000);
+    setTimeout(() => { document.getElementById('form-sent').style.display = 'none'; }, 4000);
   } else {
     alert('Ошибка отправки. Попробуйте позже.');
   }
@@ -622,7 +631,7 @@ document.getElementById('contact-form').addEventListener('submit', async (e)=>{
 document.getElementById('year').textContent = new Date().getFullYear();
 
 /* Admin link */
-document.getElementById('admin-link').addEventListener('click', (e)=>{
+document.getElementById('admin-link').addEventListener('click', (e) => {
   e.preventDefault();
   window.location.href = '/admin.html';
 });
