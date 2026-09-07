@@ -261,7 +261,8 @@ hr.sep{border:none; border-top:1px solid var(--line); margin:24px 0;}
 const SUPABASE_URL = 'https://plhuigyozjgmhcuzkosw.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsaHVpZ3lvempnbWhjdXprb3N3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3NTU0MTAsImV4cCI6MjEwMTMzMTQxMH0.qojhqwH0zCCR5ff6sA9ybaYyMMxb1lpPvedxdq9ZK_Y';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Используем другое имя переменной, чтобы избежать конфликта с глобальной
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /* =====================================================
    STATE
@@ -274,7 +275,7 @@ let DATA = {};
    AUTH
    ===================================================== */
 async function checkAuth() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await supabaseClient.auth.getSession();
   if (session) {
     currentUser = session.user;
     showAdminPanel();
@@ -287,7 +288,7 @@ document.getElementById('login-btn').addEventListener('click', async () => {
   const email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value.trim();
   
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
   if (error) {
     document.getElementById('login-error').style.display = 'block';
     return;
@@ -297,7 +298,7 @@ document.getElementById('login-btn').addEventListener('click', async () => {
 });
 
 document.getElementById('logout-btn').addEventListener('click', async () => {
-  await supabase.auth.signOut();
+  await supabaseClient.auth.signOut();
   currentUser = null;
   showLogin();
 });
@@ -317,13 +318,13 @@ function showAdminPanel() {
    LOAD DATA
    ===================================================== */
 async function loadAllData() {
-  const { data: hero } = await supabase.from('site_hero').select('*').single();
-  const { data: about } = await supabase.from('site_about').select('*').single();
-  const { data: skills } = await supabase.from('site_skills').select('*');
-  const { data: services } = await supabase.from('site_services').select('*');
-  const { data: contacts } = await supabase.from('site_contacts').select('*').single();
-  const { data: projects } = await supabase.from('site_projects').select('*').order('date', { ascending: false });
-  const { data: messages } = await supabase.from('site_messages').select('*').order('created_at', { ascending: false });
+  const { data: hero } = await supabaseClient.from('site_hero').select('*').single();
+  const { data: about } = await supabaseClient.from('site_about').select('*').single();
+  const { data: skills } = await supabaseClient.from('site_skills').select('*');
+  const { data: services } = await supabaseClient.from('site_services').select('*');
+  const { data: contacts } = await supabaseClient.from('site_contacts').select('*').single();
+  const { data: projects } = await supabaseClient.from('site_projects').select('*').order('date', { ascending: false });
+  const { data: messages } = await supabaseClient.from('site_messages').select('*').order('created_at', { ascending: false });
 
   DATA = { hero, about, skills, services, contacts, projects, messages };
   
@@ -457,7 +458,7 @@ function renderProjectsList() {
   wrap.querySelectorAll('.edit-proj').forEach(b => b.addEventListener('click', () => loadProjectForEdit(b.dataset.id)));
   wrap.querySelectorAll('.del-proj').forEach(b => b.addEventListener('click', async () => {
     if (!confirm('Удалить проект?')) return;
-    await supabase.from('site_projects').delete().eq('id', b.dataset.id);
+    await supabaseClient.from('site_projects').delete().eq('id', b.dataset.id);
     await loadAllData();
   }));
 }
@@ -530,9 +531,9 @@ document.getElementById('save-project-btn').addEventListener('click', async () =
   };
 
   if (editingProjectId) {
-    await supabase.from('site_projects').update(proj).eq('id', editingProjectId);
+    await supabaseClient.from('site_projects').update(proj).eq('id', editingProjectId);
   } else {
-    await supabase.from('site_projects').insert(proj);
+    await supabaseClient.from('site_projects').insert(proj);
   }
   resetProjectForm();
   await loadAllData();
@@ -584,7 +585,7 @@ document.querySelectorAll('[data-save]').forEach(btn => {
       };
       const file = document.getElementById('f-hero-photo-file').files[0];
       if (file) data.photo = await fileToDataUrl(file);
-      await supabase.from('site_hero').upsert(data);
+      await supabaseClient.from('site_hero').upsert(data);
     }
 
     if (key === 'about') {
@@ -598,19 +599,19 @@ document.querySelectorAll('[data-save]').forEach(btn => {
       };
       const file = document.getElementById('f-about-photo-file').files[0];
       if (file) data.photo = await fileToDataUrl(file);
-      await supabase.from('site_about').upsert(data);
+      await supabaseClient.from('site_about').upsert(data);
     }
 
     if (key === 'skills') {
       const skills = collectSkills();
-      await supabase.from('site_skills').delete().neq('id', '000');
-      if (skills.length) await supabase.from('site_skills').insert(skills);
+      await supabaseClient.from('site_skills').delete().neq('id', '000');
+      if (skills.length) await supabaseClient.from('site_skills').insert(skills);
     }
 
     if (key === 'services') {
       const services = collectServices();
-      await supabase.from('site_services').delete().neq('id', '000');
-      if (services.length) await supabase.from('site_services').insert(services);
+      await supabaseClient.from('site_services').delete().neq('id', '000');
+      if (services.length) await supabaseClient.from('site_services').insert(services);
     }
 
     if (key === 'contacts') {
@@ -621,7 +622,7 @@ document.querySelectorAll('[data-save]').forEach(btn => {
         linkedin: document.getElementById('f-contact-linkedin').value,
         behance: document.getElementById('f-contact-behance').value
       };
-      await supabase.from('site_contacts').upsert(data);
+      await supabaseClient.from('site_contacts').upsert(data);
     }
 
     await loadAllData();
