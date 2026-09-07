@@ -225,7 +225,6 @@ footer{border-top:1px solid var(--line); padding:44px 0;}
 </head>
 <body>
 
-<!-- ============ SITE ============ -->
 <div id="site-root">
 
 <nav class="nav" id="nav">
@@ -348,7 +347,6 @@ footer{border-top:1px solid var(--line); padding:44px 0;}
   </div>
 </footer>
 
-<!-- modal -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal modal-wrap" id="modal">
     <button class="modal-close" id="modal-close">✕</button>
@@ -370,276 +368,328 @@ footer{border-top:1px solid var(--line); padding:44px 0;}
 </div>
 
 </div>
-<!-- ============ /SITE ============ -->
 
 <script>
-/* =====================================================
-   CONFIGURATION
-   ===================================================== */
+// Конфигурация
 const SUPABASE_URL = 'https://plhuigyozjgmhcuzkosw.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsaHVpZ3lvempnbWhjdXprb3N3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3NTU0MTAsImV4cCI6MjEwMTMzMTQxMH0.qojhqwH0zCCR5ff6sA9ybaYyMMxb1lpPvedxdq9ZK_Y';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Создаем клиент Supabase
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-/* =====================================================
-   DEFAULTS
-   ===================================================== */
+// Хранилище данных
+let siteData = {};
+
+// Дефолтные данные (если в базе пусто)
 const DEFAULTS = {
   hero: {
-    name:"Анна Ковальская",
-    role:"AI Image Designer",
-    photo:"https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=800&q=80",
-    desc:"Создаю премиальные визуальные образы с помощью нейросетей — от рекламных кампаний до продуктовой визуализации для брендов по всему миру.",
-    status:"Свободен для новых проектов"
+    name: "Анна Ковальская",
+    role: "AI Image Designer",
+    photo: "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=800&q=80",
+    desc: "Создаю премиальные визуальные образы с помощью нейросетей — от рекламных кампаний до продуктовой визуализации для брендов по всему миру.",
+    status: "Свободен для новых проектов"
   },
   about: {
-    photo:"https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&q=80",
-    bio:"Пять лет я работаю на стыке дизайна и искусственного интеллекта: начинала как ретушёр и арт-директор, а с 2022 года выстраиваю студию, специализирующуюся на генеративных изображениях. Мой подход — точный prompt engineering плюс классическая композиция и цвет, которым учат в художественной школе.",
-    years:"5+",
-    projects:"120+",
-    companies:"Nova Cosmetics, Urban Coffee, Lumen Studio, FreshBox, Vertex Apparel",
-    achv:"Финалист AI Design Awards 2025\nСпикер конференции Generative Design Summit\nАвтор курса «Prompt Engineering для дизайнеров»\nСотрудничество с 15+ брендами в 6 странах"
+    photo: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&q=80",
+    bio: "Пять лет я работаю на стыке дизайна и искусственного интеллекта: начинала как ретушёр и арт-директор, а с 2022 года выстраиваю студию, специализирующуюся на генеративных изображениях.",
+    years: "5+",
+    projects: "120+",
+    companies: "Nova Cosmetics, Urban Coffee, Lumen Studio, FreshBox, Vertex Apparel",
+    achv: "Финалист AI Design Awards 2025\nСпикер конференции Generative Design Summit\nАвтор курса Prompt Engineering для дизайнеров\nСотрудничество с 15+ брендами в 6 странах"
   },
-  skills:[
-    {name:"Midjourney",pct:96},
-    {name:"ChatGPT",pct:90},
-    {name:"Flux",pct:88},
-    {name:"Stable Diffusion",pct:85},
-    {name:"Photoshop",pct:94},
-    {name:"Illustrator",pct:80},
-    {name:"Prompt Engineering",pct:97},
-    {name:"Branding",pct:82},
-    {name:"Advertising Design",pct:89},
-    {name:"Product Visualization",pct:91}
+  skills: [
+    { name: "Midjourney", pct: 96 },
+    { name: "ChatGPT", pct: 90 },
+    { name: "Flux", pct: 88 },
+    { name: "Stable Diffusion", pct: 85 },
+    { name: "Photoshop", pct: 94 },
+    { name: "Illustrator", pct: 80 },
+    { name: "Prompt Engineering", pct: 97 },
+    { name: "Branding", pct: 82 },
+    { name: "Advertising Design", pct: 89 },
+    { name: "Product Visualization", pct: 91 }
   ],
-  services:[
-    {title:"Рекламные изображения", desc:"Визуалы для кампаний, которые останавливают взгляд в ленте."},
-    {title:"Дизайн упаковки", desc:"Упаковка, которая продаёт продукт ещё на полке."},
-    {title:"AI-иллюстрации", desc:"Авторские иллюстрации в любом стиле — от реализма до концепт-арта."},
-    {title:"Продуктовая визуализация", desc:"Фотореалистичный рендер продукта без съёмки."},
-    {title:"Концепт-арт", desc:"Генерация визуальных концепций для брендов и проектов."},
-    {title:"Рекламные баннеры", desc:"Баннеры для digital-кампаний под любые форматы."},
-    {title:"Контент для соцсетей", desc:"Регулярный визуальный контент для Instagram и не только."}
+  services: [
+    { title: "Рекламные изображения", desc: "Визуалы для кампаний, которые останавливают взгляд в ленте." },
+    { title: "Дизайн упаковки", desc: "Упаковка, которая продаёт продукт ещё на полке." },
+    { title: "AI-иллюстрации", desc: "Авторские иллюстрации в любом стиле — от реализма до концепт-арта." },
+    { title: "Продуктовая визуализация", desc: "Фотореалистичный рендер продукта без съёмки." },
+    { title: "Концепт-арт", desc: "Генерация визуальных концепций для брендов и проектов." },
+    { title: "Рекламные баннеры", desc: "Баннеры для digital-кампаний под любые форматы." },
+    { title: "Контент для соцсетей", desc: "Регулярный визуальный контент для Instagram и не только." }
   ],
-  contacts:{email:"hello@studio.ai", telegram:"@studio_ai", instagram:"@studio.ai.design", linkedin:"linkedin.com/in/studioai", behance:"behance.net/studioai"},
-  projects:[
-    {id:"p1", title:"Nova Cosmetics — рекламная кампания", image:"https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1000&q=80", gallery:["https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&q=80","https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600&q=80"], date:"Март 2026", category:"Реклама", client:"Nova Cosmetics", goal:"Увеличить узнаваемость новой линейки", subject:"Флаконы косметики в мраморных декорациях", desc:"Серия рекламных изображений для запуска новой линии косметики с акцентом на премиальность и природные текстуры.", tools:["Midjourney","Photoshop","Prompt Engineering"]},
-    {id:"p2", title:"Urban Coffee — упаковка", image:"https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1000&q=80", gallery:["https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&q=80"], date:"Январь 2026", category:"Упаковка", client:"Urban Coffee", goal:"Ребрендинг упаковки кофе", subject:"Крафтовая упаковка для зернового кофе", desc:"Дизайн упаковки, объединяющий фотореализм и иллюстративные текстуры зерна.", tools:["Flux","Illustrator"]},
-    {id:"p3", title:"Vertex Apparel — концепт-арт", image:"https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=1000&q=80", gallery:["https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=600&q=80"], date:"Декабрь 2025", category:"Концепт-арт", client:"Vertex Apparel", goal:"Визуализация будущей коллекции", subject:"Уличная мода в футуристичном сеттинге", desc:"Концептуальные образы для лукбука будущей коллекции одежды.", tools:["Midjourney","Stable Diffusion"]},
-    {id:"p4", title:"FreshBox — продуктовая визуализация", image:"https://images.unsplash.com/photo-1490818387583-1baba5e638af?w=1000&q=80", gallery:[], date:"Ноябрь 2025", category:"Визуализация", client:"FreshBox", goal:"Каталожные изображения продукции", subject:"Свежие продукты в минималистичной студии", desc:"Фотореалистичная визуализация продуктовой линейки без студийной съёмки.", tools:["Stable Diffusion","Photoshop"]},
-    {id:"p5", title:"Lumen Studio — соцсети", image:"https://images.unsplash.com/photo-1620641622503-f8e1e5c8fa93?w=1000&q=80", gallery:[], date:"Октябрь 2025", category:"Соцсети", client:"Lumen Studio", goal:"Контент-план на месяц", subject:"Серия атмосферных карточек для Instagram", desc:"30 визуалов в едином стиле для ленты бренда освещения.", tools:["Midjourney","ChatGPT"]},
-    {id:"p6", title:"Личный проект — «Пигмент»", image:"https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1000&q=80", gallery:[], date:"Сентябрь 2025", category:"Арт", client:"", goal:"Эксперимент с цветом и формой", subject:"Абстрактные композиции на тему пигментов", desc:"Личная серия работ, исследующая смешение цвета в генеративной графике.", tools:["Midjourney","Flux"]}
+  contacts: {
+    email: "hello@studio.ai",
+    telegram: "@studio_ai",
+    instagram: "@studio.ai.design",
+    linkedin: "linkedin.com/in/studioai",
+    behance: "behance.net/studioai"
+  },
+  projects: [
+    { id: "p1", title: "Nova Cosmetics — рекламная кампания", image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1000&q=80", gallery: ["https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&q=80"], date: "Март 2026", category: "Реклама", client: "Nova Cosmetics", goal: "Увеличить узнаваемость новой линейки", subject: "Флаконы косметики", desc: "Серия рекламных изображений для запуска новой линии косметики.", tools: ["Midjourney", "Photoshop"] },
+    { id: "p2", title: "Urban Coffee — упаковка", image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1000&q=80", gallery: ["https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&q=80"], date: "Январь 2026", category: "Упаковка", client: "Urban Coffee", goal: "Ребрендинг упаковки кофе", subject: "Крафтовая упаковка", desc: "Дизайн упаковки, объединяющий фотореализм и иллюстративные текстуры.", tools: ["Flux", "Illustrator"] },
+    { id: "p3", title: "Vertex Apparel — концепт-арт", image: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=1000&q=80", gallery: ["https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=600&q=80"], date: "Декабрь 2025", category: "Концепт-арт", client: "Vertex Apparel", goal: "Визуализация будущей коллекции", subject: "Уличная мода", desc: "Концептуальные образы для лукбука будущей коллекции одежды.", tools: ["Midjourney", "Stable Diffusion"] }
   ]
 };
 
-/* =====================================================
-   DATA — хранилище загруженных данных
-   ===================================================== */
-let APP_DATA = {};
-
-/* =====================================================
-   DATA LOADER
-   ===================================================== */
-async function loadAllData() {
+// Загрузка данных из Supabase
+async function loadData() {
   try {
     // Загружаем hero
-    const { data: heroData } = await supabase.from('site_hero').select('*').maybeSingle();
-    APP_DATA.hero = heroData || DEFAULTS.hero;
+    const { data: hero } = await supabaseClient.from('site_hero').select('*').maybeSingle();
+    siteData.hero = hero || DEFAULTS.hero;
 
     // Загружаем about
-    const { data: aboutData } = await supabase.from('site_about').select('*').maybeSingle();
-    APP_DATA.about = aboutData || DEFAULTS.about;
+    const { data: about } = await supabaseClient.from('site_about').select('*').maybeSingle();
+    siteData.about = about || DEFAULTS.about;
 
     // Загружаем skills
-    const { data: skillsData } = await supabase.from('site_skills').select('*');
-    APP_DATA.skills = skillsData?.length ? skillsData : DEFAULTS.skills;
+    const { data: skills } = await supabaseClient.from('site_skills').select('*');
+    siteData.skills = (skills && skills.length > 0) ? skills : DEFAULTS.skills;
 
     // Загружаем services
-    const { data: servicesData } = await supabase.from('site_services').select('*');
-    APP_DATA.services = servicesData?.length ? servicesData : DEFAULTS.services;
+    const { data: services } = await supabaseClient.from('site_services').select('*');
+    siteData.services = (services && services.length > 0) ? services : DEFAULTS.services;
 
     // Загружаем contacts
-    const { data: contactsData } = await supabase.from('site_contacts').select('*').maybeSingle();
-    APP_DATA.contacts = contactsData || DEFAULTS.contacts;
+    const { data: contacts } = await supabaseClient.from('site_contacts').select('*').maybeSingle();
+    siteData.contacts = contacts || DEFAULTS.contacts;
 
     // Загружаем projects
-    const { data: projectsData } = await supabase.from('site_projects').select('*').order('date', { ascending: false });
-    APP_DATA.projects = projectsData?.length ? projectsData : DEFAULTS.projects;
+    const { data: projects } = await supabaseClient.from('site_projects').select('*').order('date', { ascending: false });
+    siteData.projects = (projects && projects.length > 0) ? projects : DEFAULTS.projects;
 
     renderSite();
   } catch (error) {
     console.error('Error loading data:', error);
-    APP_DATA = DEFAULTS;
+    siteData = DEFAULTS;
     renderSite();
   }
 }
 
-/* =====================================================
-   RENDER SITE
-   ===================================================== */
-function renderSite(){
-  const D = APP_DATA;
-  if (!D) return;
+// Рендер сайта
+function renderSite() {
+  const data = siteData;
 
   // Hero
-  document.getElementById('hero-status').textContent = D.hero.status || 'Свободен для новых проектов';
-  const nameParts = (D.hero.name || 'Имя Фамилия').split(' ');
+  document.getElementById('hero-status').textContent = data.hero.status || 'Свободен для новых проектов';
+  const nameParts = (data.hero.name || 'Имя Фамилия').split(' ');
   const firstName = nameParts.slice(0, -1).join(' ');
   const lastName = nameParts.slice(-1).join(' ');
-  document.getElementById('hero-name').innerHTML = `${firstName} <em>${lastName}</em>`;
-  document.getElementById('hero-role-tag').textContent = D.hero.role || 'AI Image Designer';
-  document.getElementById('hero-photo').src = D.hero.photo || '';
-  document.getElementById('hero-desc').textContent = D.hero.desc || '';
+  document.getElementById('hero-name').innerHTML = firstName ? `${firstName} <em>${lastName}</em>` : `<em>${lastName}</em>`;
+  document.getElementById('hero-role-tag').textContent = data.hero.role || 'AI Image Designer';
+  document.getElementById('hero-photo').src = data.hero.photo || '';
+  document.getElementById('hero-desc').textContent = data.hero.desc || '';
 
   // About
-  document.getElementById('about-photo').src = D.about.photo || '';
-  document.getElementById('about-bio').textContent = D.about.bio || '';
-  document.getElementById('stat-years').textContent = D.about.years || '5+';
-  document.getElementById('stat-projects').textContent = D.about.projects || '120+';
-  document.getElementById('companies-row').innerHTML = (D.about.companies || '').split(',').filter(Boolean).map(c => `<span class="chip">${c.trim()}</span>`).join('');
-  document.getElementById('achv-list').innerHTML = (D.about.achv || '').split('\n').filter(Boolean).map(a => `<li>${a}</li>`).join('');
+  document.getElementById('about-photo').src = data.about.photo || '';
+  document.getElementById('about-bio').textContent = data.about.bio || '';
+  document.getElementById('stat-years').textContent = data.about.years || '5+';
+  document.getElementById('stat-projects').textContent = data.about.projects || '120+';
+  
+  const companies = data.about.companies || '';
+  document.getElementById('companies-row').innerHTML = companies.split(',').filter(Boolean).map(c => 
+    `<span class="chip">${c.trim()}</span>`
+  ).join('');
+  
+  const achievements = data.about.achv || '';
+  document.getElementById('achv-list').innerHTML = achievements.split('\n').filter(Boolean).map(a => 
+    `<li>${a}</li>`
+  ).join('');
 
   // Skills
-  document.getElementById('skills-grid').innerHTML = (D.skills || []).map(s => `
+  document.getElementById('skills-grid').innerHTML = (data.skills || []).map(s => `
     <div class="skill-card reveal">
-      <div class="skill-top"><span class="skill-name">${s.name}</span><span class="skill-pct mono">${s.pct}%</span></div>
-      <div class="bar-track"><div class="bar-fill" data-pct="${s.pct}"></div></div>
+      <div class="skill-top">
+        <span class="skill-name">${s.name}</span>
+        <span class="skill-pct mono">${s.pct}%</span>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" data-pct="${s.pct}"></div>
+      </div>
     </div>
   `).join('');
 
   // Projects
-  document.getElementById('folio-grid').innerHTML = (D.projects || []).map(p => `
+  document.getElementById('folio-grid').innerHTML = (data.projects || []).map(p => `
     <div class="folio-card reveal" data-id="${p.id}">
       <div class="folio-img"><img src="${p.image}" alt="${p.title}"></div>
       <div class="folio-body">
-        <div class="folio-cat mono">${p.category}</div>
+        <div class="folio-cat mono">${p.category || 'Проект'}</div>
         <div class="folio-title">${p.title}</div>
-        <div class="folio-meta"><span>${p.client || 'Личный проект'}</span><span>${p.date}</span></div>
+        <div class="folio-meta">
+          <span>${p.client || 'Личный проект'}</span>
+          <span>${p.date || ''}</span>
+        </div>
       </div>
     </div>
   `).join('');
 
   // Services
-  document.getElementById('services-grid').innerHTML = (D.services || []).map(s => `
+  document.getElementById('services-grid').innerHTML = (data.services || []).map(s => `
     <div class="service-card reveal">
-      <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 2 L14.5 8.5 L21 9.3 L16.2 13.9 L17.6 20.5 L12 17.1 L6.4 20.5 L7.8 13.9 L3 9.3 L9.5 8.5 Z"/></svg>
+      <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+        <path d="M12 2 L14.5 8.5 L21 9.3 L16.2 13.9 L17.6 20.5 L12 17.1 L6.4 20.5 L7.8 13.9 L3 9.3 L9.5 8.5 Z"/>
+      </svg>
       <div class="service-title">${s.title}</div>
       <div class="service-desc">${s.desc}</div>
     </div>
   `).join('');
 
   // Contacts
-  const c = D.contacts || {};
+  const c = data.contacts || {};
   document.getElementById('contact-links').innerHTML = `
-    <a class="contact-link reveal" href="mailto:${c.email || ''}"><span class="k mono">EMAIL</span><span class="v">${c.email || ''}</span></a>
-    <a class="contact-link reveal" href="https://t.me/${(c.telegram || '').replace('@', '')}" target="_blank"><span class="k mono">TELEGRAM</span><span class="v">${c.telegram || ''}</span></a>
-    <a class="contact-link reveal" href="https://instagram.com/${(c.instagram || '').replace('@', '')}" target="_blank"><span class="k mono">INSTAGRAM</span><span class="v">${c.instagram || ''}</span></a>
-    <a class="contact-link reveal" href="https://${(c.linkedin || '').replace(/^https?:\/\//, '')}" target="_blank"><span class="k mono">LINKEDIN</span><span class="v">${c.linkedin || ''}</span></a>
-    <a class="contact-link reveal" href="https://${(c.behance || '').replace(/^https?:\/\//, '')}" target="_blank"><span class="k mono">BEHANCE</span><span class="v">${c.behance || ''}</span></a>
+    <a class="contact-link reveal" href="mailto:${c.email || ''}">
+      <span class="k mono">EMAIL</span>
+      <span class="v">${c.email || ''}</span>
+    </a>
+    <a class="contact-link reveal" href="https://t.me/${(c.telegram || '').replace('@', '')}" target="_blank">
+      <span class="k mono">TELEGRAM</span>
+      <span class="v">${c.telegram || ''}</span>
+    </a>
+    <a class="contact-link reveal" href="https://instagram.com/${(c.instagram || '').replace('@', '')}" target="_blank">
+      <span class="k mono">INSTAGRAM</span>
+      <span class="v">${c.instagram || ''}</span>
+    </a>
+    <a class="contact-link reveal" href="https://${(c.linkedin || '').replace(/^https?:\/\//, '')}" target="_blank">
+      <span class="k mono">LINKEDIN</span>
+      <span class="v">${c.linkedin || ''}</span>
+    </a>
+    <a class="contact-link reveal" href="https://${(c.behance || '').replace(/^https?:\/\//, '')}" target="_blank">
+      <span class="k mono">BEHANCE</span>
+      <span class="v">${c.behance || ''}</span>
+    </a>
   `;
+
   document.getElementById('footer-social').innerHTML = `
     <a href="https://t.me/${(c.telegram || '').replace('@', '')}" target="_blank">Telegram</a>
     <a href="https://instagram.com/${(c.instagram || '').replace('@', '')}" target="_blank">Instagram</a>
     <a href="https://${(c.behance || '').replace(/^https?:\/\//, '')}" target="_blank">Behance</a>
   `;
 
-  attachRevealObserver();
-  attachFolioClicks();
-  animateBars();
+  // Анимация баров
+  setTimeout(() => {
+    document.querySelectorAll('.bar-fill').forEach(el => {
+      el.style.width = el.dataset.pct + '%';
+    });
+  }, 500);
+
+  // Обсервер для анимаций
+  setupRevealObserver();
+  setupFolioClicks();
 }
 
-function animateBars(){
-  document.querySelectorAll('.bar-fill').forEach(el => {
-    setTimeout(() => { el.style.width = el.dataset.pct + '%'; }, 300);
-  });
+// Настройка обсервера для анимаций
+function setupRevealObserver() {
+  const els = document.querySelectorAll('.reveal:not(.in)');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(en => {
+      if (en.isIntersecting) {
+        en.target.classList.add('in');
+        io.unobserve(en.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  els.forEach(el => io.observe(el));
 }
 
-function attachFolioClicks(){
+// Настройка кликов по карточкам проектов
+function setupFolioClicks() {
   document.querySelectorAll('.folio-card').forEach(card => {
     card.addEventListener('click', () => openModal(card.dataset.id));
   });
 }
 
-function openModal(id){
-  const p = (APP_DATA.projects || []).find(x => x.id === id);
-  if(!p) return;
-  document.getElementById('modal-img').src = p.image;
-  document.getElementById('modal-title').textContent = p.title;
-  document.getElementById('modal-cat').textContent = '--category="' + p.category + '"';
-  document.getElementById('modal-client').textContent = p.client || '—';
-  document.getElementById('modal-date').textContent = p.date;
-  document.getElementById('modal-goal').textContent = p.goal || '—';
-  document.getElementById('modal-subject').textContent = p.subject || '—';
-  document.getElementById('modal-desc').textContent = p.desc;
-  document.getElementById('modal-tools').innerHTML = (p.tools || []).map(t => `<span class="chip mono">${t}</span>`).join('');
-  document.getElementById('modal-gallery').innerHTML = (p.gallery || []).map(g => `<img src="${g}">`).join('');
+// Открытие модального окна
+function openModal(id) {
+  const project = (siteData.projects || []).find(p => p.id === id);
+  if (!project) return;
+
+  document.getElementById('modal-img').src = project.image || '';
+  document.getElementById('modal-title').textContent = project.title || '';
+  document.getElementById('modal-cat').textContent = `--category="${project.category || 'Проект'}"`;
+  document.getElementById('modal-client').textContent = project.client || '—';
+  document.getElementById('modal-date').textContent = project.date || '—';
+  document.getElementById('modal-goal').textContent = project.goal || '—';
+  document.getElementById('modal-subject').textContent = project.subject || '—';
+  document.getElementById('modal-desc').textContent = project.desc || '';
+  
+  document.getElementById('modal-tools').innerHTML = (project.tools || []).map(t => 
+    `<span class="chip mono">${t}</span>`
+  ).join('');
+  
+  document.getElementById('modal-gallery').innerHTML = (project.gallery || []).map(img => 
+    `<img src="${img}">`
+  ).join('');
+
   document.getElementById('modal-overlay').classList.add('open');
 }
-document.getElementById('modal-close').addEventListener('click', () => document.getElementById('modal-overlay').classList.remove('open'));
-document.getElementById('modal-overlay').addEventListener('click', e => { if(e.target.id === 'modal-overlay') e.currentTarget.classList.remove('open'); });
 
-function attachRevealObserver(){
-  const els = document.querySelectorAll('.reveal:not(.in)');
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(en => { if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
-  }, { threshold: .15 });
-  els.forEach(el => io.observe(el));
-}
-
-let lastY = window.scrollY;
-window.addEventListener('scroll', () => {
-  const nav = document.getElementById('nav');
-  const y = window.scrollY;
-  if(y > lastY && y > 140) nav.classList.add('hide'); 
-  else nav.classList.remove('hide');
-  lastY = y;
+// Закрытие модального окна
+document.getElementById('modal-close').addEventListener('click', () => {
+  document.getElementById('modal-overlay').classList.remove('open');
 });
 
-function typePrompt(){
+document.getElementById('modal-overlay').addEventListener('click', (e) => {
+  if (e.target.id === 'modal-overlay') {
+    e.currentTarget.classList.remove('open');
+  }
+});
+
+// Навигация
+let lastScrollY = window.scrollY;
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('nav');
+  const currentScrollY = window.scrollY;
+  if (currentScrollY > lastScrollY && currentScrollY > 140) {
+    nav.classList.add('hide');
+  } else {
+    nav.classList.remove('hide');
+  }
+  lastScrollY = currentScrollY;
+});
+
+// Печатание промпта
+function typePrompt() {
   const line = 'render --subject="premium portfolio" --style="cinematic" --quality=ultra';
   const el = document.getElementById('prompt-line');
   let i = 0;
   el.innerHTML = '&gt; <span id="typed"></span><span class="cursor"></span>';
   const typed = document.getElementById('typed');
-  const iv = setInterval(() => {
+  const interval = setInterval(() => {
     typed.textContent = line.slice(0, i);
     i++;
-    if(i > line.length) clearInterval(iv);
+    if (i > line.length) clearInterval(interval);
   }, 35);
 }
 
-/* Contact form */
+// Отправка формы контакта
 document.getElementById('contact-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const name = document.getElementById('form-name').value;
   const email = document.getElementById('form-email').value;
   const message = document.getElementById('form-message').value;
-  
-  const { error } = await supabase
+
+  const { error } = await supabaseClient
     .from('site_messages')
     .insert({ name, email, message });
 
   if (!error) {
     document.getElementById('form-sent').style.display = 'block';
     e.target.reset();
-    setTimeout(() => { document.getElementById('form-sent').style.display = 'none'; }, 4000);
+    setTimeout(() => {
+      document.getElementById('form-sent').style.display = 'none';
+    }, 4000);
   } else {
     alert('Ошибка отправки. Попробуйте позже.');
   }
 });
 
+// Год в футере
 document.getElementById('year').textContent = new Date().getFullYear();
 
-/* Admin link */
-document.getElementById('admin-link').addEventListener('click', (e) => {
-  e.preventDefault();
-  window.location.href = '/admin.html';
-});
-
-/* =====================================================
-   BOOT
-   ===================================================== */
-loadAllData().then(() => {
+// Загрузка данных
+loadData().then(() => {
   typePrompt();
   setTimeout(() => {
     document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
