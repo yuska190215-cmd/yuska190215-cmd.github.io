@@ -333,7 +333,7 @@ footer{border-top:1px solid var(--line); padding:44px 0;}
         <div class="form-field"><label>Email</label><input type="email" id="form-email" required></div>
         <div class="form-field"><label>Сообщение</label><textarea id="form-message" required></textarea></div>
         <button type="submit" class="btn btn-primary">Отправить сообщение</button>
-        <div class="form-note">Ваше сообщение будет отправлено на email администратора.</div>
+        <div class="form-note">Ваше сообщение будет сохранено в базе данных.</div>
         <div class="form-note" id="form-sent" style="display:none; color:var(--gold-soft);">Сообщение отправлено!</div>
       </form>
     </div>
@@ -344,7 +344,7 @@ footer{border-top:1px solid var(--line); padding:44px 0;}
   <div class="wrap footer-inner">
     <div class="brand">stud<span>io.</span>ai</div>
     <div class="footer-social" id="footer-social"></div>
-    <div>© <span id="year"></span> Все права защищены. <a href="#" id="admin-link" class="footer-admin">Вход для администратора</a></div>
+    <div>© <span id="year"></span> Все права защищены. <a href="/admin.html" id="admin-link" class="footer-admin">Вход для администратора</a></div>
   </div>
 </footer>
 
@@ -379,7 +379,8 @@ footer{border-top:1px solid var(--line); padding:44px 0;}
 const SUPABASE_URL = 'https://plhuigyozjgmhcuzkosw.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsaHVpZ3lvempnbWhjdXprb3N3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3NTU0MTAsImV4cCI6MjEwMTMzMTQxMH0.qojhqwH0zCCR5ff6sA9ybaYyMMxb1lpPvedxdq9ZK_Y';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Используем другое имя переменной, чтобы избежать конфликта с глобальной
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /* =====================================================
    DEFAULTS — если в базе нет данных
@@ -436,32 +437,39 @@ const DEFAULTS = {
    DATA LOADER — загружает все данные из Supabase
    ===================================================== */
 async function loadAllData() {
-  // Загружаем hero
-  const { data: heroData } = await supabase.from('site_hero').select('*').single();
-  window.DATA = window.DATA || {};
-  window.DATA.hero = heroData || DEFAULTS.hero;
+  try {
+    // Загружаем hero
+    const { data: heroData } = await supabaseClient.from('site_hero').select('*').maybeSingle();
+    window.DATA = window.DATA || {};
+    window.DATA.hero = heroData || DEFAULTS.hero;
 
-  // Загружаем about
-  const { data: aboutData } = await supabase.from('site_about').select('*').single();
-  window.DATA.about = aboutData || DEFAULTS.about;
+    // Загружаем about
+    const { data: aboutData } = await supabaseClient.from('site_about').select('*').maybeSingle();
+    window.DATA.about = aboutData || DEFAULTS.about;
 
-  // Загружаем skills
-  const { data: skillsData } = await supabase.from('site_skills').select('*');
-  window.DATA.skills = skillsData?.length ? skillsData : DEFAULTS.skills;
+    // Загружаем skills
+    const { data: skillsData } = await supabaseClient.from('site_skills').select('*');
+    window.DATA.skills = skillsData?.length ? skillsData : DEFAULTS.skills;
 
-  // Загружаем services
-  const { data: servicesData } = await supabase.from('site_services').select('*');
-  window.DATA.services = servicesData?.length ? servicesData : DEFAULTS.services;
+    // Загружаем services
+    const { data: servicesData } = await supabaseClient.from('site_services').select('*');
+    window.DATA.services = servicesData?.length ? servicesData : DEFAULTS.services;
 
-  // Загружаем contacts
-  const { data: contactsData } = await supabase.from('site_contacts').select('*').single();
-  window.DATA.contacts = contactsData || DEFAULTS.contacts;
+    // Загружаем contacts
+    const { data: contactsData } = await supabaseClient.from('site_contacts').select('*').maybeSingle();
+    window.DATA.contacts = contactsData || DEFAULTS.contacts;
 
-  // Загружаем projects
-  const { data: projectsData } = await supabase.from('site_projects').select('*').order('date', { ascending: false });
-  window.DATA.projects = projectsData?.length ? projectsData : DEFAULTS.projects;
+    // Загружаем projects
+    const { data: projectsData } = await supabaseClient.from('site_projects').select('*').order('created_at', { ascending: false });
+    window.DATA.projects = projectsData?.length ? projectsData : DEFAULTS.projects;
 
-  renderSite();
+    renderSite();
+  } catch (error) {
+    console.error('Error loading data:', error);
+    // Если ошибка, используем дефолтные данные
+    window.DATA = DEFAULTS;
+    renderSite();
+  }
 }
 
 /* =====================================================
@@ -598,7 +606,7 @@ document.getElementById('contact-form').addEventListener('submit', async (e)=>{
   const email = document.getElementById('form-email').value;
   const message = document.getElementById('form-message').value;
   
-  const { error } = await supabase
+  const { error } = await supabaseClient
     .from('site_messages')
     .insert({ name, email, message });
 
