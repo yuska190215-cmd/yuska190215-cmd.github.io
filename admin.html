@@ -41,7 +41,6 @@ textarea{resize:vertical; min-height:80px;}
 .brand{font-family:'Fraunces',serif; font-size:1.2rem; font-weight:600;}
 .brand span{color:var(--gold);}
 
-/* Login */
 .login-wrap{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;}
 .login-card{width:100%; max-width:400px; background:var(--surface); border:1px solid var(--line-strong); border-radius:16px; padding:36px;}
 .login-card h2{font-size:1.5rem; margin-bottom:4px;}
@@ -52,7 +51,6 @@ textarea{resize:vertical; min-height:80px;}
 .btn-primary{background:linear-gradient(135deg,var(--gold),#b98a3a); color:#1a1420; padding:12px 24px; border-radius:8px; font-weight:600; font-size:.9rem; width:100%;}
 .btn-primary:hover{opacity:.9;}
 
-/* Admin shell */
 .admin-shell{display:none;}
 .admin-topbar{position:sticky; top:0; z-index:50; background:var(--bg-soft); border-bottom:1px solid var(--line); padding:12px 28px; display:flex; justify-content:space-between; align-items:center;}
 .admin-topbar .right{display:flex; align-items:center; gap:20px;}
@@ -100,12 +98,6 @@ hr.sep{border:none; border-top:1px solid var(--line); margin:24px 0;}
 .ali-actions button:hover{color:var(--text); border-color:var(--gold);}
 .ali-actions .del:hover{color:#e8879a; border-color:#e8879a;}
 
-.image-upload-row{display:flex; gap:12px; align-items:center; flex-wrap:wrap;}
-.image-preview{width:80px; height:80px; object-fit:cover; border-radius:6px; border:1px solid var(--line-strong);}
-
-.gallery-thumbs{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;}
-.gallery-thumbs img{width:60px; height:60px; object-fit:cover; border-radius:4px; border:1px solid var(--line-strong);}
-
 @media (max-width:768px){
   .admin-body{flex-direction:column;}
   .admin-side{width:100%; display:flex; overflow-x:auto; padding:8px 12px; border-right:none; border-bottom:1px solid var(--line);}
@@ -119,7 +111,6 @@ hr.sep{border:none; border-top:1px solid var(--line); margin:24px 0;}
 </head>
 <body>
 
-<!-- ============ LOGIN ============ -->
 <div class="login-wrap" id="login-view">
   <div class="login-card">
     <h2>🔐 Вход</h2>
@@ -137,7 +128,6 @@ hr.sep{border:none; border-top:1px solid var(--line); margin:24px 0;}
   </div>
 </div>
 
-<!-- ============ ADMIN PANEL ============ -->
 <div class="admin-shell" id="admin-panel">
   <div class="admin-topbar">
     <div class="brand">admin<span>.</span>panel</div>
@@ -158,19 +148,17 @@ hr.sep{border:none; border-top:1px solid var(--line); margin:24px 0;}
     </div>
     <div class="admin-main">
 
-      <!-- HERO -->
       <div class="admin-panel active" id="panel-hero">
         <h3>Главная страница</h3>
         <div class="field"><label>Имя и фамилия</label><input id="f-hero-name"></div>
-        <div class="field"><label>Профессия (метка на фото)</label><input id="f-hero-role"></div>
-        <div class="field"><label>Статус (надпись в eyebrow)</label><input id="f-hero-status"></div>
+        <div class="field"><label>Профессия</label><input id="f-hero-role"></div>
+        <div class="field"><label>Статус</label><input id="f-hero-status"></div>
         <div class="field"><label>Фото (URL)</label><input id="f-hero-photo"></div>
         <div class="field"><label>Или загрузить фото</label><input id="f-hero-photo-file" type="file" accept="image/*"></div>
         <div class="field"><label>Описание</label><textarea id="f-hero-desc" rows="3"></textarea></div>
         <button class="save-btn" data-save="hero">Сохранить</button><span class="saved-msg" data-saved="hero">Сохранено ✓</span>
       </div>
 
-      <!-- ABOUT -->
       <div class="admin-panel" id="panel-about">
         <h3>Обо мне</h3>
         <div class="field"><label>Фото (URL)</label><input id="f-about-photo"></div>
@@ -185,7 +173,6 @@ hr.sep{border:none; border-top:1px solid var(--line); margin:24px 0;}
         <button class="save-btn" data-save="about">Сохранить</button><span class="saved-msg" data-saved="about">Сохранено ✓</span>
       </div>
 
-      <!-- SKILLS -->
       <div class="admin-panel" id="panel-skills">
         <h3>Навыки</h3>
         <div id="skills-editor"></div>
@@ -194,12 +181,11 @@ hr.sep{border:none; border-top:1px solid var(--line); margin:24px 0;}
         <button class="save-btn" data-save="skills">Сохранить</button><span class="saved-msg" data-saved="skills">Сохранено ✓</span>
       </div>
 
-      <!-- PROJECTS -->
       <div class="admin-panel" id="panel-projects">
         <h3>Проекты</h3>
         <div id="projects-list"></div>
         <hr class="sep">
-        <h4 id="project-form-title" style="font-size:1.1rem;">Добавить проект</h4>
+        <h4 id="project-form-title">Добавить проект</h4>
         <input type="hidden" id="f-proj-id">
         <div class="field-row">
           <div class="field"><label>Название</label><input id="f-proj-title"></div>
@@ -222,7 +208,6 @@ hr.sep{border:none; border-top:1px solid var(--line); margin:24px 0;}
         <span class="saved-msg" data-saved="projects">Сохранено ✓</span>
       </div>
 
-      <!-- SERVICES -->
       <div class="admin-panel" id="panel-services">
         <h3>Услуги</h3>
         <div id="services-editor"></div>
@@ -231,7 +216,6 @@ hr.sep{border:none; border-top:1px solid var(--line); margin:24px 0;}
         <button class="save-btn" data-save="services">Сохранить</button><span class="saved-msg" data-saved="services">Сохранено ✓</span>
       </div>
 
-      <!-- CONTACTS -->
       <div class="admin-panel" id="panel-contacts">
         <h3>Контакты</h3>
         <div class="field"><label>Email</label><input id="f-contact-email"></div>
@@ -242,12 +226,9 @@ hr.sep{border:none; border-top:1px solid var(--line); margin:24px 0;}
         <button class="save-btn" data-save="contacts">Сохранить</button><span class="saved-msg" data-saved="contacts">Сохранено ✓</span>
       </div>
 
-      <!-- MESSAGES -->
       <div class="admin-panel" id="panel-messages">
         <h3>Сообщения</h3>
-        <div id="messages-list">
-          <p style="color:var(--text-faint);">Загрузка...</p>
-        </div>
+        <div id="messages-list"><p style="color:var(--text-faint);">Загрузка...</p></div>
       </div>
 
     </div>
@@ -255,27 +236,20 @@ hr.sep{border:none; border-top:1px solid var(--line); margin:24px 0;}
 </div>
 
 <script>
-/* =====================================================
-   CONFIGURATION
-   ===================================================== */
+// Конфигурация
 const SUPABASE_URL = 'https://plhuigyozjgmhcuzkosw.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsaHVpZ3lvempnbWhjdXprb3N3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3NTU0MTAsImV4cCI6MjEwMTMzMTQxMH0.qojhqwH0zCCR5ff6sA9ybaYyMMxb1lpPvedxdq9ZK_Y';
 
-// Используем другое имя для клиента Supabase в админке
-const adminSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Создаем клиент Supabase для админки
+const adminClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-/* =====================================================
-   STATE
-   ===================================================== */
 let currentUser = null;
 let editingProjectId = null;
-let APP_DATA = {};
+let adminData = {};
 
-/* =====================================================
-   AUTH
-   ===================================================== */
+// Авторизация
 async function checkAuth() {
-  const { data: { session } } = await adminSupabase.auth.getSession();
+  const { data: { session } } = await adminClient.auth.getSession();
   if (session) {
     currentUser = session.user;
     showAdminPanel();
@@ -288,7 +262,7 @@ document.getElementById('login-btn').addEventListener('click', async () => {
   const email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value.trim();
   
-  const { data, error } = await adminSupabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await adminClient.auth.signInWithPassword({ email, password });
   if (error) {
     document.getElementById('login-error').style.display = 'block';
     return;
@@ -298,7 +272,7 @@ document.getElementById('login-btn').addEventListener('click', async () => {
 });
 
 document.getElementById('logout-btn').addEventListener('click', async () => {
-  await adminSupabase.auth.signOut();
+  await adminClient.auth.signOut();
   currentUser = null;
   showLogin();
 });
@@ -311,23 +285,21 @@ function showLogin() {
 function showAdminPanel() {
   document.getElementById('login-view').style.display = 'none';
   document.getElementById('admin-panel').style.display = 'block';
-  loadAllData();
+  loadAdminData();
 }
 
-/* =====================================================
-   LOAD DATA
-   ===================================================== */
-async function loadAllData() {
+// Загрузка данных
+async function loadAdminData() {
   try {
-    const { data: hero } = await adminSupabase.from('site_hero').select('*').maybeSingle();
-    const { data: about } = await adminSupabase.from('site_about').select('*').maybeSingle();
-    const { data: skills } = await adminSupabase.from('site_skills').select('*');
-    const { data: services } = await adminSupabase.from('site_services').select('*');
-    const { data: contacts } = await adminSupabase.from('site_contacts').select('*').maybeSingle();
-    const { data: projects } = await adminSupabase.from('site_projects').select('*').order('date', { ascending: false });
-    const { data: messages } = await adminSupabase.from('site_messages').select('*').order('created_at', { ascending: false });
+    const { data: hero } = await adminClient.from('site_hero').select('*').maybeSingle();
+    const { data: about } = await adminClient.from('site_about').select('*').maybeSingle();
+    const { data: skills } = await adminClient.from('site_skills').select('*');
+    const { data: services } = await adminClient.from('site_services').select('*');
+    const { data: contacts } = await adminClient.from('site_contacts').select('*').maybeSingle();
+    const { data: projects } = await adminClient.from('site_projects').select('*').order('date', { ascending: false });
+    const { data: messages } = await adminClient.from('site_messages').select('*').order('created_at', { ascending: false });
 
-    APP_DATA = { hero, about, skills, services, contacts, projects, messages };
+    adminData = { hero, about, skills, services, contacts, projects, messages };
     
     populateForms();
     renderSkillsEditor();
@@ -335,22 +307,20 @@ async function loadAllData() {
     renderProjectsList();
     renderMessages();
   } catch (err) {
-    console.error('Error loading data:', err);
+    console.error('Error loading admin data:', err);
   }
 }
 
-/* =====================================================
-   POPULATE FORMS
-   ===================================================== */
+// Заполнение форм
 function populateForms() {
-  const h = APP_DATA.hero || {};
+  const h = adminData.hero || {};
   document.getElementById('f-hero-name').value = h.name || '';
   document.getElementById('f-hero-role').value = h.role || '';
   document.getElementById('f-hero-status').value = h.status || '';
   document.getElementById('f-hero-photo').value = h.photo || '';
   document.getElementById('f-hero-desc').value = h.desc || '';
 
-  const a = APP_DATA.about || {};
+  const a = adminData.about || {};
   document.getElementById('f-about-photo').value = a.photo || '';
   document.getElementById('f-about-bio').value = a.bio || '';
   document.getElementById('f-about-years').value = a.years || '';
@@ -358,7 +328,7 @@ function populateForms() {
   document.getElementById('f-about-companies').value = a.companies || '';
   document.getElementById('f-about-achv').value = a.achv || '';
 
-  const c = APP_DATA.contacts || {};
+  const c = adminData.contacts || {};
   document.getElementById('f-contact-email').value = c.email || '';
   document.getElementById('f-contact-telegram').value = c.telegram || '';
   document.getElementById('f-contact-instagram').value = c.instagram || '';
@@ -366,12 +336,10 @@ function populateForms() {
   document.getElementById('f-contact-behance').value = c.behance || '';
 }
 
-/* =====================================================
-   SKILLS EDITOR
-   ===================================================== */
+// Редактор навыков
 function renderSkillsEditor() {
   const wrap = document.getElementById('skills-editor');
-  const skills = APP_DATA.skills || [];
+  const skills = adminData.skills || [];
   wrap.innerHTML = skills.map((s, i) => `
     <div class="skill-edit-row" data-i="${i}">
       <input class="sk-name" value="${s.name}" placeholder="Название">
@@ -402,12 +370,10 @@ function collectSkills() {
     .filter(s => s.name);
 }
 
-/* =====================================================
-   SERVICES EDITOR
-   ===================================================== */
+// Редактор услуг
 function renderServicesEditor() {
   const wrap = document.getElementById('services-editor');
-  const services = APP_DATA.services || [];
+  const services = adminData.services || [];
   wrap.innerHTML = services.map((s, i) => `
     <div class="skill-edit-row" style="grid-template-columns:1fr 1fr 40px;" data-i="${i}">
       <input class="sv-title" value="${s.title}" placeholder="Название">
@@ -439,12 +405,10 @@ function collectServices() {
     .filter(s => s.title);
 }
 
-/* =====================================================
-   PROJECTS
-   ===================================================== */
+// Проекты
 function renderProjectsList() {
   const wrap = document.getElementById('projects-list');
-  const projects = APP_DATA.projects || [];
+  const projects = adminData.projects || [];
   if (!projects.length) {
     wrap.innerHTML = '<p style="color:var(--text-faint);">Проектов пока нет.</p>';
     return;
@@ -462,8 +426,8 @@ function renderProjectsList() {
   wrap.querySelectorAll('.edit-proj').forEach(b => b.addEventListener('click', () => loadProjectForEdit(b.dataset.id)));
   wrap.querySelectorAll('.del-proj').forEach(b => b.addEventListener('click', async () => {
     if (!confirm('Удалить проект?')) return;
-    await adminSupabase.from('site_projects').delete().eq('id', b.dataset.id);
-    await loadAllData();
+    await adminClient.from('site_projects').delete().eq('id', b.dataset.id);
+    await loadAdminData();
   }));
 }
 
@@ -475,7 +439,7 @@ function resetProjectForm() {
 }
 
 function loadProjectForEdit(id) {
-  const p = (APP_DATA.projects || []).find(x => x.id === id);
+  const p = (adminData.projects || []).find(x => x.id === id);
   if (!p) return;
   editingProjectId = id;
   document.getElementById('project-form-title').textContent = 'Редактировать проект';
@@ -491,7 +455,6 @@ function loadProjectForEdit(id) {
   document.getElementById('f-proj-desc').value = p.desc || '';
   document.getElementById('f-proj-tools').value = (p.tools || []).join(', ');
   document.getElementById('save-project-btn').textContent = 'Обновить проект';
-  document.getElementById('panel-projects').scrollIntoView({ behavior: 'smooth' });
 }
 
 document.getElementById('cancel-edit-btn').addEventListener('click', resetProjectForm);
@@ -535,21 +498,19 @@ document.getElementById('save-project-btn').addEventListener('click', async () =
   };
 
   if (editingProjectId) {
-    await adminSupabase.from('site_projects').update(proj).eq('id', editingProjectId);
+    await adminClient.from('site_projects').update(proj).eq('id', editingProjectId);
   } else {
-    await adminSupabase.from('site_projects').insert(proj);
+    await adminClient.from('site_projects').insert(proj);
   }
   resetProjectForm();
-  await loadAllData();
+  await loadAdminData();
   flashSaved('projects');
 });
 
-/* =====================================================
-   MESSAGES
-   ===================================================== */
+// Сообщения
 function renderMessages() {
   const wrap = document.getElementById('messages-list');
-  const msgs = APP_DATA.messages || [];
+  const msgs = adminData.messages || [];
   if (!msgs.length) {
     wrap.innerHTML = '<p style="color:var(--text-faint);">Нет сообщений.</p>';
     return;
@@ -565,9 +526,7 @@ function renderMessages() {
   `).join('');
 }
 
-/* =====================================================
-   SAVE HANDLERS
-   ===================================================== */
+// Сохранение
 function flashSaved(key) {
   const el = document.querySelector(`[data-saved="${key}"]`);
   if (!el) return;
@@ -591,11 +550,11 @@ document.querySelectorAll('[data-save]').forEach(btn => {
         photo: photo,
         desc: document.getElementById('f-hero-desc').value
       };
-      const { data: existing } = await adminSupabase.from('site_hero').select('id').maybeSingle();
+      const { data: existing } = await adminClient.from('site_hero').select('id').maybeSingle();
       if (existing) {
-        await adminSupabase.from('site_hero').update(data).eq('id', existing.id);
+        await adminClient.from('site_hero').update(data).eq('id', existing.id);
       } else {
-        await adminSupabase.from('site_hero').insert(data);
+        await adminClient.from('site_hero').insert(data);
       }
     }
 
@@ -612,24 +571,24 @@ document.querySelectorAll('[data-save]').forEach(btn => {
         companies: document.getElementById('f-about-companies').value,
         achv: document.getElementById('f-about-achv').value
       };
-      const { data: existing } = await adminSupabase.from('site_about').select('id').maybeSingle();
+      const { data: existing } = await adminClient.from('site_about').select('id').maybeSingle();
       if (existing) {
-        await adminSupabase.from('site_about').update(data).eq('id', existing.id);
+        await adminClient.from('site_about').update(data).eq('id', existing.id);
       } else {
-        await adminSupabase.from('site_about').insert(data);
+        await adminClient.from('site_about').insert(data);
       }
     }
 
     if (key === 'skills') {
       const skills = collectSkills();
-      await adminSupabase.from('site_skills').delete().neq('id', '000');
-      if (skills.length) await adminSupabase.from('site_skills').insert(skills);
+      await adminClient.from('site_skills').delete().neq('id', '000');
+      if (skills.length) await adminClient.from('site_skills').insert(skills);
     }
 
     if (key === 'services') {
       const services = collectServices();
-      await adminSupabase.from('site_services').delete().neq('id', '000');
-      if (services.length) await adminSupabase.from('site_services').insert(services);
+      await adminClient.from('site_services').delete().neq('id', '000');
+      if (services.length) await adminClient.from('site_services').insert(services);
     }
 
     if (key === 'contacts') {
@@ -640,22 +599,20 @@ document.querySelectorAll('[data-save]').forEach(btn => {
         linkedin: document.getElementById('f-contact-linkedin').value,
         behance: document.getElementById('f-contact-behance').value
       };
-      const { data: existing } = await adminSupabase.from('site_contacts').select('id').maybeSingle();
+      const { data: existing } = await adminClient.from('site_contacts').select('id').maybeSingle();
       if (existing) {
-        await adminSupabase.from('site_contacts').update(data).eq('id', existing.id);
+        await adminClient.from('site_contacts').update(data).eq('id', existing.id);
       } else {
-        await adminSupabase.from('site_contacts').insert(data);
+        await adminClient.from('site_contacts').insert(data);
       }
     }
 
-    await loadAllData();
+    await loadAdminData();
     flashSaved(key);
   });
 });
 
-/* =====================================================
-   SIDE NAV
-   ===================================================== */
+// Навигация по панелям
 document.querySelectorAll('#side-nav button').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('#side-nav button').forEach(b => b.classList.remove('active'));
@@ -665,9 +622,7 @@ document.querySelectorAll('#side-nav button').forEach(btn => {
   });
 });
 
-/* =====================================================
-   BOOT
-   ===================================================== */
+// Запуск
 checkAuth();
 </script>
 </body>
